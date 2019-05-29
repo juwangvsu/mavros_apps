@@ -1,22 +1,23 @@
 -------------5/28/2019------------------------------------
-	the mavros code here is old. so don't build and
-	use the binary code here. the mavros installed
-	under /opt/ros/... should be used. this mean that
-	make sure the rospath and pythonpath are correct
-	when calling mavros cmd etc.
-	
-	only launch file are usful.
 
-	in particular, the local workspace should not contain
-	executable stuff from this folder. if they exist
-	and cause interference to mavros binary under /opt/ros,
-	remove devel, build and make sure ignore file is put here
-	and rebuild other turtlebot pkgs.
+	this package is copied based on a strip down of mavros/mavros to have
+	offb_node only.
 
-		also uav2cam.ui adding a few button to call rosservice directly for testing
-			add sitl checkbox to launch individual sitl instance.
+	future mavros apps can also be here.
 
-		also add  CATKIN_IGNORE on all ~/turtlebot/src/mavros/mavros subpkgs
-			and rm devel, build, and catkin_make
-			so mavsys will use the python library @ /opt/ros/...
-		also add CATKIN_IGNORE on ~/turtlebot/src/turtlebot_apps/ to build
+	the reason for the new pkg is to get ride of the ros search
+	path confusion if we build turtlebot/src/mavros/mavros.
+	if built, its search path will override that in /opt/ros/...
+
+	the sympotum is rosrun mavros mavros_node will compliant fail to
+	locate, since the strip-down mavros does not build mavros_node.
+
+	hence we have to put a CATKIN_IGNORE in mavros/mavros, and
+	use this package to host offb_node.
+
+	this noded is called at mavroscall.sh @ ~/turtlebot/src/rqt_mypkg/scripts
+	to run uav in offboard mode and circle around.
+
+	to build this package,
+		catkin_make --pkg mavros_apps
+
