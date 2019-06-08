@@ -13,25 +13,47 @@ float c_radius=10;
 mavros_msgs::State current_state;
 void state_cb(const mavros_msgs::State::ConstPtr& msg){
     current_state = *msg;
+    //std::cout<<current_state;
 }
 
 int main(int argc, char **argv)
 {
+    std::string fcutype;
     ros::init(argc, argv, "offb_node");
-    ros::NodeHandle nh;
-
+    ros::NodeHandle nh("~");
+nh.param<std::string>("fcutype", fcutype, "px4");
+//wang 6/6/19 fcutype is px4|iris|solo|apm
+//iris , solo, apm all use ardupilot as firmware
+ 
     ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>
-            ("mavros/state", 10, state_cb);
+            ("/mavros/state", 10, state_cb);
     ros::Publisher local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
-            ("mavros/setpoint_position/local", 10);
+            ("/mavros/setpoint_position/local", 10);
     ros::ServiceClient arming_client = nh.serviceClient<mavros_msgs::CommandBool>
-            ("mavros/cmd/arming");
+            ("/mavros/cmd/arming");
     ros::ServiceClient set_mode_client = nh.serviceClient<mavros_msgs::SetMode>
-            ("mavros/set_mode");
+            ("/mavros/set_mode");
 
     //the setpoint publishing rate MUST be faster than 2Hz
-    ros::Rate rate(3.0);
+    ros::Rate rate(3);
  
+    mavros_msgs::SetMode offb_set_mode;
+    if (fcutype=="px4")
+    {
+	std::cout<<"fcutype is px4\n";
+    	offb_set_mode.request.custom_mode = "OFFBOARD";
+    //the setpoint publishing rate MUST be faster than 2Hz
+        rate = ros::Rate(3.0);
+    }
+    else if (fcutype=="iris" | fcutype=="solo" | fcutype=="apm")
+    {
+	std::cout<<"fcutype is ardupilot\n";
+    	offb_set_mode.request.custom_mode = "GUIDED";
+        rate=ros::Rate(2);
+	//apm guided mode is not the same as px4 offboard mode, it require
+	//relative slow cmd
+    }
+
     // wait for FCU connection
     while(ros::ok() && current_state.connected){
         ros::spinOnce();
@@ -46,6 +68,7 @@ int main(int argc, char **argv)
     //send a few setpoints before starting this seems to be necessar
     // to turn off fail safe mode, the fail safe mode will be
     // on again if the setposition cmd stop
+    if (fcutype=="px4")
     for(int i = 10; ros::ok() && i > 0; --i){
         local_pos_pub.publish(pose);
         ros::spinOnce();
@@ -54,8 +77,6 @@ int main(int argc, char **argv)
 
 	//while(1);
 
-    mavros_msgs::SetMode offb_set_mode;
-    offb_set_mode.request.custom_mode = "OFFBOARD";
 
     mavros_msgs::CommandBool arm_cmd;
     arm_cmd.request.value = true;
@@ -63,6 +84,7 @@ int main(int argc, char **argv)
     ros::Time last_request = ros::Time::now();
     int circletheta=0;
     while(ros::ok()){
+      if (fcutype=="px4")
         if( current_state.mode != "OFFBOARD" &&
             (ros::Time::now() - last_request > ros::Duration(5.0))){
             if( set_mode_client.call(offb_set_mode) &&
@@ -84,8 +106,8 @@ int main(int argc, char **argv)
 
         ROS_INFO_STREAM("xypos "<<c_radius*sin(circletheta*2*3.14/360)<<" "
 		<<c_radius*cos(circletheta*2*3.14));
-        pose.pose.position.x = c_radius*sin(circletheta*20*3.14/360);
-        pose.pose.position.y = c_radius*cos(circletheta*20*3.14/360);
+        pose.pose.position.x = c_radius*sin(circletheta*2*3.14/360);
+        pose.pose.position.y = c_radius*cos(circletheta*2*3.14/360);
         local_pos_pub.publish(pose);
 
         ros::spinOnce();
