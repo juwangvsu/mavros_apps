@@ -19,9 +19,11 @@ void state_cb(const mavros_msgs::State::ConstPtr& msg){
 int main(int argc, char **argv)
 {
     std::string fcutype;
+    int alt; //altitude 
     ros::init(argc, argv, "offb_node");
     ros::NodeHandle nh("~");
 nh.param<std::string>("fcutype", fcutype, "px4");
+nh.param<int>("alt", alt, 5);
 //wang 6/6/19 fcutype is px4|iris|solo|apm
 //iris , solo, apm all use ardupilot as firmware
  
@@ -63,7 +65,7 @@ nh.param<std::string>("fcutype", fcutype, "px4");
     geometry_msgs::PoseStamped pose;
     pose.pose.position.x = 0;
     pose.pose.position.y = 0;
-    pose.pose.position.z = 5;
+    pose.pose.position.z = alt;
 
     //send a few setpoints before starting this seems to be necessar
     // to turn off fail safe mode, the fail safe mode will be

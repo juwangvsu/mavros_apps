@@ -72,6 +72,7 @@ include_directories(
   ${EIGEN3_INCLUDE_DIRS}
 )
 link_directories(/opt/ros/kinetic/lib)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 
 #add_library(mavros
 #  src/lib/uas_data.cpp
