@@ -20,22 +20,30 @@ int main(int argc, char **argv)
 {
     std::string fcutype;
     int alt; //altitude 
-    ros::init(argc, argv, "offb_node");
+    int uavinst; //altitude 
+    ros::init(argc, argv,"offb_node");
     ros::NodeHandle nh("~");
 nh.param<std::string>("fcutype", fcutype, "px4");
 nh.param<int>("alt", alt, 5);
+nh.param<int>("uavinst", uavinst, 1);
+    //ros::init(argc, argv, "offb_node"+std::to_string(uavinst));
+//uavinst is the instance num of uav, 
 //wang 6/6/19 fcutype is px4|iris|solo|apm
 //iris , solo, apm all use ardupilot as firmware
- 
+std::string mavros="mavros";
+ if (uavinst==1){
+    mavros="mavros";
+ }else{
+    mavros="mavros2";
+ }
     ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>
-            ("/mavros/state", 10, state_cb);
+            ("/"+mavros+"/state", 10, state_cb);
     ros::Publisher local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
-            ("/mavros/setpoint_position/local", 10);
+            ("/"+mavros+"/setpoint_position/local", 10);
     ros::ServiceClient arming_client = nh.serviceClient<mavros_msgs::CommandBool>
-            ("/mavros/cmd/arming");
+            ("/"+mavros+"/cmd/arming");
     ros::ServiceClient set_mode_client = nh.serviceClient<mavros_msgs::SetMode>
-            ("/mavros/set_mode");
-
+            ("/"+mavros+"/set_mode");
     //the setpoint publishing rate MUST be faster than 2Hz
     ros::Rate rate(3);
  
