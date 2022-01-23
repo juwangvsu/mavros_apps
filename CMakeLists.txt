@@ -55,8 +55,8 @@ catkin_python_setup()
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS 
-  LIBRARIES mavros
-  CATKIN_DEPENDS diagnostic_msgs diagnostic_updater pluginlib roscpp sensor_msgs nav_msgs std_msgs tf2_ros geometry_msgs libmavconn message_runtime eigen_conversions mavros_msgs
+  LIBRARIES 
+  CATKIN_DEPENDS diagnostic_msgs diagnostic_updater pluginlib roscpp sensor_msgs nav_msgs std_msgs tf2_ros geometry_msgs libmavconn message_runtime eigen_conversions mavros_msgs mavros
   DEPENDS Boost Eigen
 )
 
@@ -72,6 +72,7 @@ include_directories(
   ${EIGEN3_INCLUDE_DIRS}
 )
 link_directories(/opt/ros/kinetic/lib)
+link_directories(/opt/ros/melodic/lib)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 
 #add_library(mavros
@@ -136,10 +137,10 @@ add_executable(offb_node
   src/offb_node.cpp
 )
 add_dependencies(offb_node
-  mavros
+	  mavros
 )
 target_link_libraries(offb_node
-  mavros
+	  mavros
   ${catkin_LIBRARIES}
   ${Boost_LIBRARIES}
 )

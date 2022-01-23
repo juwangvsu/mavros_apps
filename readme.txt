@@ -1,3 +1,8 @@
+-------------1/23/2022----------------------------------a
+
+rebuild for ub18 ros-melodic
+fix CMakeLists.txt by add melodic path to link to the libmavros.so
+
 -------------5/28/2019------------------------------------
 
 	this package is copied based on a strip down of mavros/mavros to have

@@ -20,6 +20,7 @@
 
   <!-- system dependencies -->
   <depend>boost</depend>
+  <depend>mavros</depend>
   <build_depend>eigen</build_depend>
   <build_export_depend>eigen</build_export_depend>
   <build_depend>mavlink</build_depend>
